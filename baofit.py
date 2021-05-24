@@ -154,6 +154,7 @@ def Legendre(el):
         L = 1.0/8*(35*muobs**4 - 30*muobs**2 +3)
     return L
 
+
 class model:
 
         def __init__(self, params,combined):
@@ -342,7 +343,7 @@ class model:
 
 def chi2f(params):
     modelP = model(params,combined)
-
+    
     if combined:
             hs = size//2
     else:
