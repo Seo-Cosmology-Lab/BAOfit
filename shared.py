@@ -152,11 +152,13 @@ outputMC = pardict["outputMC"]
 combined = int(pardict["combined"])
 poles = list(pardict["poles"])
 ell = list(map(int, poles))
+ell = np.asarray(ell)
 
 deg = list(pardict["degrees"])
 degrees = list(map(int, deg))
 kmin = float(pardict["kmin"])
 kmax = float(pardict["kmax"])
+dk = float(pardict["dk"])
 json = int(pardict["json"])
 convolved = int(pardict["convolve"])
 
@@ -228,25 +230,44 @@ print('size of kobs ',ksize)
 half = int(size/2)
 
 
+covfull = np.loadtxt(covpath)
+cov_start = 0.01
 
+if not combined:
+    nlines = int(covfull.shape[0]/3)
+else:
+    nlines = int(covfull.shape[0]/6)
+    
+lowerind = round((kmin-cov_start)/dk)
+
+upperind = round((kmax-cov_start)/dk)
+
+cov = np.zeros((ell.size*ksize,ell.size*ksize))
+
+for i in range(0,ell.size):
+    for j in range(0,ell.size):
+        cov[i*ksize:(i+1)*ksize,j*ksize:(j+1)*ksize] = covfull[i*nlines+lowerind:i*nlines+upperind,j*nlines+lowerind:j*nlines+upperind]
+
+
+print(cov.shape)
+covinv = inv(cov)
+        
+        
+'''
 if 4 in ell:
-        cov = np.load(covpath)
-        covinv = inv(cov)
+        #cov = np.load(covpath)
+        #covinv = inv(cov)
 
+        
+        
+        
 else:
         cov = np.load(covpath)
         cov = cov[0:2*ksize,0:2*ksize]
         covinv = inv(cov)
+'''
 
 
-if convolved:
-    Wfile = window
-    Mfile = wideangle
-    W = np.loadtxt(Wfile)
-    M = np.loadtxt(Mfile)
-
-
-            
 temp = np.loadtxt(linearpk)
 ktemp = temp[0]
 Plintemp = temp[1]

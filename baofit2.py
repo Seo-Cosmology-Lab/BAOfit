@@ -529,88 +529,17 @@ if __name__ == "__main__":
         Pkdata = np.concatenate([P0dat1,P2dat1,P4dat1,P0dat2,P2dat2,P4dat2])
 
     size = Pkdata.size
-    print('size of kobs ',ksize)
     half = int(size/2)
 
 
-
-    if 4 in ell:
-            cov = np.load(covpath)
-            covinv = inv(cov)
-
-    else:
-            cov = np.load(covpath)
-            cov = cov[0:2*ksize,0:2*ksize]
-            covinv = inv(cov)
-
+    cov = shared.cov
+    covinv = shared.covinv
 
     if convolved:
-        Wfile = window
-        Mfile = wideangle
-        W = np.loadtxt(Wfile)
-        M = np.loadtxt(Mfile)
-
-
+        W = shared.W
+        M = shared.M
     
     print('poles: ', ell,'redshift: ',redshift)
-
-    
-    '''
-    
-    #h=0.676
-    #Om0 = 0.31
-    #cosmo = cosmology.Cosmology(h=0.676,Omega0_b=0.022/h**2,n_s=0.97).match(Omega0_m=Om0)   #eBOSS cosmology
-    #new_cosmo = cosmo.match(sigma8=0.8)
-    cosmo = cosmology.Cosmology(h=h,Omega0_b=omb0/h**2,n_s=0.97).match(Omega0_m=Om0)  
-    new_cosmo = cosmo.match(sigma8=sig8)
-
-    temp = np.loadtxt(linearpk)
-    ktemp = temp[0]
-    Plintemp = temp[1]
-
-    
-    Plinfunc =  IUS(temp[0],temp[1])
-    #Plinfunc = cosmology.LinearPower(new_cosmo, redshift=redshift, transfer='CLASS')
-    Psmlinfunc = cosmology.LinearPower(new_cosmo, redshift=redshift, transfer='NoWiggleEisensteinHu')
-
-    
-    
-    
-    popt,pcov = curve_fit(Psmfitfunopt,ktemp,Plinfunc(ktemp))
-    asm1 = popt[0]
-    asm2= popt[1]
-    asm3 = popt[2]
-    asm4 = popt[3]
-    asm5 = popt[4]
-
-    Psmfitopt = Psmfitfunopt(ktemp,asm1,asm2,asm3,asm4,asm5)
-    
-
-    muobs = np.linspace(-1,1,100)
-    sigpar = 8.
-    sigperp = 3.
-
-    if smooth:
-            sigpar = 100.
-            sigperp = 100.
-
-    print(sigpar,sigperp)
-
-    sigs = 4.0
-
-    z = redshift
-    Omv0 = 1-Om0
-    Omz = Om0*(1+z)**3/(Om0*(1+z)**3 + .69)
-    f = Omz**0.55
-
-    print('calculated f: ', f)
-
-    
-    L0 = Legendre(0)
-    L2 = Legendre(2)
-    L4 = Legendre(4)
-
-    '''
 
     
     start = np.array([2.0,1.00,1.00])
@@ -622,11 +551,10 @@ if __name__ == "__main__":
     pos0 = start + 1e-4*np.random.randn(8*start.size, start.size)
     nwalkers, ndim = pos0.shape
 
-    
+    print('before LLSQ',cov.shape)
     kbb,km = prepare_poly_k(ell,convolved)
-    solver = LLSQsolver(degrees,ell,cov,kbb)
 
-    
+    solver = LLSQsolver(degrees,ell,cov,kbb)
 
     print('Running best fit....')
     result = op.minimize(chi2f,start,method='Powell')
