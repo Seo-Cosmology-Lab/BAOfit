@@ -464,7 +464,7 @@ if __name__ == "__main__":
     smooth = shared.smooth
     print('smooth: ',smooth)
 
-
+    '''
 
     if json:
         r = ConvolvedFFTPower.load(inputpk)
@@ -530,7 +530,13 @@ if __name__ == "__main__":
 
     size = Pkdata.size
     half = int(size/2)
-
+    '''
+    Pkdata = shared.Pkdata
+    kobs = shared.kobs
+    size = shared.size
+    ksize = shared.ksize
+    half = shared.half
+    km = shared.km
 
     cov = shared.cov
     covinv = shared.covinv
@@ -551,15 +557,8 @@ if __name__ == "__main__":
     pos0 = start + 1e-4*np.random.randn(8*start.size, start.size)
     nwalkers, ndim = pos0.shape
 
-    print('before LLSQ',cov.shape)
-    kbb,km = prepare_poly_k(ell,convolved)
-
-    solver = LLSQsolver(degrees,ell,cov,kbb)
-
     print('Running best fit....')
     result = op.minimize(chi2f,start,method='Powell')
-
-
 
     print(result)
 
