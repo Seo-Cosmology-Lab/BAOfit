@@ -231,7 +231,7 @@ if __name__ == "__main__":
 
     #This is also currently hard-coded
     #I base the completion of the run on auto-corrleation times reported by emcee
-    #In general, alphas converge by ~100 steps, and I discard by a few times this number and thin by ~half
+    #In general, alphas converge by ~50 steps, and I discard by a few times this number and thin by ~half
     #If all parameters are not converged by the end of the run, resume and run for longer
 
     reader = emcee.backends.HDFBackend(outputMC+'.h5')
