@@ -1,13 +1,24 @@
 # BAOfit
 Code fits to the BAO shape of catalog data
 
+Install anaconda
+
 Install emcee, jupyter, and nbodykit python packages
 
 https://emcee.readthedocs.io/en/stable/
 
 https://nbodykit.readthedocs.io/en/latest/
 
+Set up a conda environment
+
+1. conda create --n myenv python=3.7
+2. conda activate myenv
+3. conda install -c conda-forge emcee
+4. conda install -c bccp nbodykit
+5. conda install -c anaconda configobj
+
 ## Guide
+
 Set up the fitting configuration in the config.ini file
 This will include 
 * Cosmology parameters
