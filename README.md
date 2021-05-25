@@ -20,9 +20,10 @@ Set up a conda environment
 ## Guide
 
 Set up the fitting configuration in the config.ini file
+
 This will include 
 * Cosmology parameters
-* Paths to inout/output files
+* Paths to input/output files
 * Parameters for fitting (e.g. kmin,kmax,multipoles)
 
 A few other considerations
