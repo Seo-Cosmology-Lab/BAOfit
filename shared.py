@@ -161,7 +161,7 @@ kmax = float(pardict["kmax"])
 dk = float(pardict["dk"])
 json = int(pardict["json"])
 convolved = int(pardict["convolve"])
-
+smooth = int(pardict["smooth"])
 
 if json:
     r = ConvolvedFFTPower.load(inputpk)
@@ -294,7 +294,7 @@ muobs = np.linspace(-1,1,100)
 sigpar = 8.
 sigperp = 3.
 
-smooth = False
+
 if smooth:
     sigpar = 100.
     sigperp = 100.

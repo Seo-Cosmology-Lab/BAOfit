@@ -17,6 +17,8 @@ from scipy.interpolate import InterpolatedUnivariateSpline as IUS
 import sys
 
 
+#chi squared function, with hartlap factor included
+
 def chi2f(params):
 
     modelP = model(params,combined)
@@ -43,12 +45,15 @@ def chi2f(params):
     #return -0.5*chisq + log_prior(params)
 
 
-
+#likelihood function including priors
 def lnlh(params):
         chi2 = chi2f(params)
         return -0.5*chi2 + log_prior(params)
 
 
+
+#priors (all flat as of now)
+#here f is set to an arbitrary constant if it is not a free parameter, so it always falls in the prior range
 def log_prior(params):
     if combined:
             B = params[0]
@@ -86,6 +91,7 @@ if __name__ == "__main__":
     from analyticBBsolver import LLSQsolver
     import shared
 
+    #loading packages and reading the config file
     pardict = ConfigObj('config.ini')
 
     #Cosmo params
@@ -119,7 +125,8 @@ if __name__ == "__main__":
     convolved = int(pardict["convolve"])
 
     
-
+    #picks which model to use based on multipoles and use of window function
+    
     if convolved and 4 in ell:
         from models import modelWl024 as model
         
@@ -136,9 +143,12 @@ if __name__ == "__main__":
         
     elif not convolved and not 4 in ell:
         from models import modelnoWl02 as model
-    
+
+
+
+    #Whether or not you are fitting to a smooth model (i.e. for detection level) 
     smooth = shared.smooth
-    print('smooth: ',smooth)
+    print('smooth: ',bool(smooth))
 
    
     Pkdata = shared.Pkdata
@@ -157,13 +167,15 @@ if __name__ == "__main__":
     
     print('poles: ', ell,'redshift: ',redshift)
 
-    
+    #This is the starting vecotr of free parameters
+    #This will have to change if you decide to add more parameters
     start = np.array([2.0,1.00,1.00])
 
     if combined:
         start = np.array([2.0,1.0,1.0,1.0])
 
 
+    #Sets up the starting point in parameter space for the MCMC run
     pos0 = start + 1e-4*np.random.randn(8*start.size, start.size)
     nwalkers, ndim = pos0.shape
 
@@ -199,16 +211,37 @@ if __name__ == "__main__":
     # Don't forget to clear it in case the file already exists
     filename = outputMC+'.h5'
     backend = emcee.backends.HDFBackend(filename)
+
+
+    #If you are starting from scratch, keep this line
+    #If you want to resume a run, comment it out
     backend.reset(nwalkers, ndim)
 
     # Initialize the sampler
+    #If you are resuming a run, change 'pos0' to 'None' in sampler.run()
+    #The second argument in sampler.run is the amount of steps Nsteps.
+    #It is currently hard-coded to stop after Nsteps
+    
     with Pool() as pool:
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnlh, pool=pool,backend=backend)
         #sampler = zeus.sampler(nwalkers,ndim,chi2f,pool=pool)
         sampler.run_mcmc(pos0, 5000, progress=True)
 
+
+
+    #This is also currently hard-coded
+    #I base the completion of the run on auto-corrleation times reported by emcee
+    #In general, alphas converge by ~100 steps, and I discard by a few times this number and thin by ~half
+    #If all parameters are not converged by the end of the run, resume and run for longer
+
     reader = emcee.backends.HDFBackend(outputMC+'.h5')
     samples1 = reader.get_chain(flat=True,discard=200,thin=30)
+
+    
+    tau = reader.get_autocorr_time()
+    print(tau)
+
+    
     B1m = np.mean(samples1[:,0])
     aperm = np.mean(samples1[:,1])
     aparm = np.mean(samples1[:,2])
