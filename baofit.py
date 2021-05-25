@@ -157,7 +157,11 @@ if __name__ == "__main__":
     ksize = shared.ksize
     half = shared.half
     km = shared.km
+    if combined:
+        kobs1 = shared.kobs1
+        kobs2 = shared.kobs2
 
+    
     cov = shared.cov
     covinv = shared.covinv
 

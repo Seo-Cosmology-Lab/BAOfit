@@ -177,7 +177,7 @@ class modelnoWl024:
                 self.alpha_par = params[2]
                 self.beta = shared.f/self.B
                 #self.fn = params[3]
-                #self.beta = self.fn/self.B
+                #self.beta = params[3]
                 #self.sigpar = params[4]
                 #self.sigperp = params[5]
                 #self.sigs = params[6]
@@ -186,20 +186,27 @@ class modelnoWl024:
                 self.sigperp = shared.sigperp
                 self.sigs = shared.sigs
                 
+                self.sigsmooth = 15
+
+
                 if combined:
                         self.B2 =params[3]
-                        self.beta2 = f/self.B2
+                        self.beta2 = shared.f/self.B2
                         #self.B2 = params[4]
                         #self.fn2 = params[5]
                         #self.beta2 = self.B2/self.fn
 
                 self.F = self.alpha_par / self.alpha_perp
 
-                self.combined = combined
+
                 
+                self.combined = combined
                 self.muobs = shared.muobs
                 self.Olin = shared.Olin
                 self.Psmfit = shared.Psmfit
+                
+                self.modelhalf = shared.modelhalf
+                self.modelsize = shared.modelsize
                 
                 self.L0 = shared.L0
                 self.L2 = shared.L2
@@ -225,14 +232,14 @@ class modelnoWl024:
 
                 if combined:
                         cap =1
-                        for k in kobs[0:modelhalf]:
+                        for k in kobs[0:self.modelhalf]:
                                 kp = self.kprime(k)
                                 Psmkmu1 = self.Psmkmuf(mup,kp,k,cap)
 
                                 Pkmu1 = Psmkmu1 * (1+ (self.Olin(kp) -1) * np.exp(-1*(kp**2 * mup**2 * self.sigpar**2 + kp**2*(1-mup**2)*self.sigperp**2)/2.0))
                                 Pkmuint.append(Pkmu1)
                         cap=2
-                        for k in kobs[modelhalf:modelsize]:
+                        for k in kobs[self.modelhalf:self.modelsize]:
                                 kp = self.kprime(k)
                                 Psmkmu2 = self.Psmkmuf(mup,kp,k,cap)
                                 Pkmu2 = Psmkmu2 * (1+ (self.Olin(kp) -1) * np.exp(-1*(kp**2 * mup**2 * self.sigpar**2 + kp**2*(1-mup**2)*self.sigperp**2)/2.0))
@@ -251,6 +258,7 @@ class modelnoWl024:
                         return np.asarray(Pkmuint)
 
         def Psmkmuf(self,mup,kp,k,cap):
+                #R = 1.0-np.exp(-0.5*(kp*self.sigsmooth)**2)
                 R = 1.0
                 if cap ==1:
                         Pskmu = (self.B**2) * (1+self.beta*mup**2 *R)**2 * self.Psmfit(k) * self.Ffogf(mup,kp)
@@ -272,8 +280,8 @@ class modelnoWl024:
                 combined = self.combined
                 if combined:
                         Pkmu = self.Pkmuf(k)
-                        Pkmu1 = Pkmu[0:modelhalf]
-                        Pkmu2 = Pkmu[modelhalf:modelsize]
+                        Pkmu1 = Pkmu[0:self.modelhalf]
+                        Pkmu2 = Pkmu[self.modelhalf:self.modelsize]
 
                         integrand10 = Pkmu1*self.L0
                         integrand12 = Pkmu1*self.L2
@@ -283,21 +291,20 @@ class modelnoWl024:
                         integrand22 = Pkmu2*self.L2
                         integrand24 = Pkmu2*self.L4
 
-                        P_1_0 = 0.5 * 1./(self.alpha_perp**2 * self.alpha_par)* integrate.simps(integrand10,x=muobs,axis=1)
-                        P_1_2 = 5./2 * 1./(self.alpha_perp**2 * self.alpha_par)* integrate.simps(integrand12,x=muobs,axis=1)
-                        P_1_4 = 9./2 * 1./(self.alpha_perp**2 * self.alpha_par)* integrate.simps(integrand14,x=muobs,axis=1)
+                        P_1_0 = 0.5 * 1./(self.alpha_perp**2 * self.alpha_par)* integrate.simps(integrand10,x=self.muobs,axis=1)
+                        P_1_2 = 5./2 * 1./(self.alpha_perp**2 * self.alpha_par)*integrate.simps(integrand12,x=self.muobs,axis=1)
+                        P_1_4 = 9./2 * 1./(self.alpha_perp**2 * self.alpha_par)*integrate.simps(integrand14,x=self.muobs,axis=1)
 
-                        P_2_0 = 0.5 * 1./(self.alpha_perp**2 * self.alpha_par)* integrate.simps(integrand20,x=muobs,axis=1)
-                        P_2_2 = 5./2 * 1./(self.alpha_perp**2 * self.alpha_par)* integrate.simps(integrand22,x=muobs,axis=1)
-                        P_2_4 = 9./2 * 1./(self.alpha_perp**2 * self.alpha_par)* integrate.simps(integrand24,x=muobs,axis=1)	
+                        P_2_0 = 0.5 * 1./(self.alpha_perp**2 * self.alpha_par)* integrate.simps(integrand20,x=self.muobs,axis=1)
+                        P_2_2 = 5./2 * 1./(self.alpha_perp**2 * self.alpha_par)*integrate.simps(integrand22,x=self.muobs,axis=1)
+                        P_2_4 = 9./2 * 1./(self.alpha_perp**2 * self.alpha_par)*integrate.simps(integrand24,x=self.muobs,axis=1)
 
 
                         Pkml = np.concatenate([P_1_0,P_1_2,P_1_4,P_2_0,P_2_2,P_2_4])
                       
-                        res = Pkml-WPkm_cut
+                        res = shared.Pkdata-Pkml
+                        BB = shared.solver.BBk(res).flatten()
                         
-                        BB = solver.BBk(res).flatten()
-                       
                         Pkmodel = Pkml + BB
                         
                         return Pkmodel

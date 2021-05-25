@@ -46,38 +46,38 @@ def prepare_poly_k(ell,convolved):
                                                                                                                                                                                                                                                                                                                       
 
     if combined:
+            if convolved:
+                km1 = np.linspace(0.001,0.4,endpoint=False,num=400)
+                km2 = np.linspace(0.001,0.4,endpoint=False,num=400)
+                modelhalf = km1.size
+                km = np.concatenate([km1,km2])
+                modelsize = km.size
+                kmodel_vec = np.concatenate([km,km,km])
 
-            km1 = np.linspace(0.001,0.4,endpoint=False,num=400)
-            km2 = np.linspace(0.001,0.4,endpoint=False,num=400)
-            modelhalf = km1.size
-            km = np.concatenate([km1,km2])
-            modelsize = km.size
-            kmodel_vec = np.concatenate([km,km,km])
+                kw = np.matmul(M,kmodel_vec)
+                kw = np.matmul(W,kw)
+                newkw = np.reshape(kw,(10,40))
 
-            kw = np.matmul(M,kmodel_vec)
-            kw = np.matmul(W,kw)
-            newkw = np.reshape(kw,(10,40))
+                kslice10 = newkw[0][2:23]
+                kslice12 = newkw[2][2:23]
+                kslice14 = newkw[4][2:23]
 
-            kslice10 = newkw[0][2:23]
-            kslice12 = newkw[2][2:23]
-            kslice14 = newkw[4][2:23]
-
-            kslice20 = newkw[5][2:23]
-            kslice22 = newkw[7][2:23]
-            kslice24 = newkw[9][2:23]                                                                
+                kslice20 = newkw[5][2:23]
+                kslice22 = newkw[7][2:23]
+                kslice24 = newkw[9][2:23]                                                                
 
             if 4 in ell and convolved:
                 kwm = [kslice10,kslice12,kslice14,kslice20,kslice22,kslice24]
 
-            elif 4 in ell and not convoled:
-                kwm = [kobs,kobs,kobs,kobs,kobs,kobs]
+            elif 4 in ell and not convolved:
+                kwm = [kobs[0:ksize],kobs[0:ksize],kobs[0:ksize],kobs[ksize:],kobs[ksize:],kobs[ksize:]]
                 km = kobs
 
             elif not 4 in ell and convolved:
                 kwm = [kslice10,kslice12,kslice20,kslice22]
 
             elif not 4 in ell and not convolved:
-                kwm = [kobs,kobs,kobs,kobs]
+                kwm = [kobs[0:ksize],kobs[0:ksize],kobs[ksize:],kobs[ksize:]]
                 km = kobs
             
             
@@ -142,6 +142,7 @@ sig8 = float(pardict["sigma_8"])
 
 linearpk = pardict["linearpk"]
 inputpk = pardict["inputpk"]
+inputpk2 = pardict["inputpk2"]
 window = pardict["window"]
 wideangle = pardict["wideangle"]
 
@@ -159,6 +160,7 @@ degrees = list(map(int, deg))
 kmin = float(pardict["kmin"])
 kmax = float(pardict["kmax"])
 dk = float(pardict["dk"])
+covstart = float(pardict["covstart"])
 json = int(pardict["json"])
 convolved = int(pardict["convolve"])
 smooth = int(pardict["smooth"])
@@ -231,49 +233,43 @@ half = int(size/2)
 
 
 covfull = np.loadtxt(covpath)
-cov_start = 0.01
+cov_start = covstart
 
 if not combined:
     nlines = int(covfull.shape[0]/3)
+    fac=1
 else:
     nlines = int(covfull.shape[0]/6)
+    fac=2
     
 lowerind = round((kmin-cov_start)/dk)
 
 upperind = round((kmax-cov_start)/dk)
 
-cov = np.zeros((ell.size*ksize,ell.size*ksize))
 
-for i in range(0,ell.size):
-    for j in range(0,ell.size):
+cov = np.zeros((ell.size*ksize*fac,ell.size*ksize*fac))
+
+for i in range(0,ell.size*fac):
+    for j in range(0,ell.size*fac):
         cov[i*ksize:(i+1)*ksize,j*ksize:(j+1)*ksize] = covfull[i*nlines+lowerind:i*nlines+upperind,j*nlines+lowerind:j*nlines+upperind]
 
 
 print(cov.shape)
 covinv = inv(cov)
-        
-        
-'''
-if 4 in ell:
-        #cov = np.load(covpath)
-        #covinv = inv(cov)
-
-        
-        
-        
-else:
-        cov = np.load(covpath)
-        cov = cov[0:2*ksize,0:2*ksize]
-        covinv = inv(cov)
-'''
 
 
 temp = np.loadtxt(linearpk)
-ktemp = temp[0]
-Plintemp = temp[1]
+#ktemp = temp[0]
+#Plintemp = temp[1]
+ktemp = temp[:,0]
+Plintemp = temp[:,1]
+
 
 cosmo = cosmology.Cosmology(h=h,Omega0_b=omb0/h**2,n_s=n_s).match(Omega0_m=Om0)  
 new_cosmo = cosmo.match(sigma8=sig8)
+if sig8 == -1:
+    new_cosmo = cosmo
+
 
 Plinfunc =  IUS(ktemp,Plintemp)
 #Plinfunc = cosmology.LinearPower(new_cosmo, redshift=redshift, transfer='CLASS')
@@ -324,7 +320,10 @@ if convolved:
 
 
 kbb,km = prepare_poly_k(ell,convolved)
-solver = LLSQsolver(degrees,ell,cov,kbb)
+modelhalf = int(km.size/2)
+modelsize = int(km.size)
+
+solver = LLSQsolver(degrees,ell,cov,kbb,combined)
         
         
         
