@@ -5,9 +5,10 @@ Install anaconda
 
 Install emcee, jupyter, and nbodykit python packages
 
-https://emcee.readthedocs.io/en/stable/
 
-https://nbodykit.readthedocs.io/en/latest/
+https://emcee.readthedocs.io/en/stable/user/install/
+
+https://nbodykit.readthedocs.io/en/latest/getting-started/install.html
 
 Set up a conda environment
 
