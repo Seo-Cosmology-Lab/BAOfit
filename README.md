@@ -29,7 +29,10 @@ This will include
 
 A few other considerations
 * The minimum k specified in the config file must be greater than or equal to the minimum k of the covariance matrix
-* The Window and Wide angle matrices must have the same k spacing as the data/covariance
-* If using a "combined" fit (i.e. 2 separate data sets/covariances) the input covariance must be one block-diagonal covariance.
+* Window function convolution is done through matrix multiplication of the
+model, and as of v0.1 has only been tested with dk=0.01
+* If using a "combined" fit (i.e. 2 separate data sets/covariances) the input
+covariance must be one block-diagonal covariance.  If using a combined fit and
+convolution, the same goes for the window and wide-angle matrices
 * As of v0.1, no monopole only fits
 

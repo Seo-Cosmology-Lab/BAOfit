@@ -202,12 +202,16 @@ if __name__ == "__main__":
 
                                                 
     if not combined and 4 in ell:
-        np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs,Pm[0:ksize],Pm[ksize:2*ksize],Pm[2*kobs.size:3*kobs.size]]))
+        np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs,Pm[0:ksize],Pm[ksize:2*ksize],Pm[2*kobs.size:]]),header='NGC k \t P0 \t P2')
+    
     elif not combined and not 4 in ell:
-        np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs,Pm[0:ksize],Pm[ksize:2*ksize]]))
+        np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs,Pm[0:ksize],Pm[ksize:]]),header='NGC k \t P0 \t P2')
 
-    else:
-                np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs1,Pm[0:ksize],Pm[ksize:2*ksize],Pm[2*ksize:3*ksize],kobs2,Pm[half:half+ksize],Pm[half+ksize:half+2*ksize],Pm[half+2*ksize:half+3*ksize]]),header='NGC k \t P0 \t P2')
+    elif combined and 4 in ell:
+        np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs1,Pm[0:ksize],Pm[ksize:2*ksize],Pm[2*ksize:3*ksize],kobs2,Pm[half:half+ksize],Pm[half+ksize:half+2*ksize],Pm[half+2*ksize:half+3*ksize]]),header='NGC k \t P0 \t P2 \t P4 \t SGC k \t P0 \t P2\ t P4')
+
+    elif combined and not 4 in ell:
+        np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs1,Pm[0:ksize],Pm[ksize:2*ksize],kobs2,Pm[half:half+ksize],Pm[half+ksize:half+2*ksize]]),header='NGC k \t P0 \t P2 \t SGC k \t P0 \t P2')
 
 
 

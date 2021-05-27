@@ -225,11 +225,19 @@ if json and combined:
     P2dat2 = P2dat2[valid2]
     P4dat2 = P4dat2[valid2]
     kobs = np.concatenate([kobs1,kobs2])
-    Pkdata = np.concatenate([P0dat1,P2dat1,P4dat1,P0dat2,P2dat2,P4dat2])
+    #Pkdata = np.concatenate([P0dat1,P2dat1,P4dat1,P0dat2,P2dat2,P4dat2])
+    
+    if 4 in ell:
+        Pkdata = np.concatenate([P0dat1,P2dat1,P4dat1,P0dat2,P2dat2,P4dat2])
+    else:
+        Pkdata = np.concatenate([P0dat1,P2dat1,P0dat2,P2dat2])
 
 size = Pkdata.size
 print('size of kobs ',ksize)
 half = int(size/2)
+
+
+
 
 
 covfull = np.loadtxt(covpath)
