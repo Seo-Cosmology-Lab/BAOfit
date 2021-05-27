@@ -247,19 +247,24 @@ if __name__ == "__main__":
 
     
     tau = reader.get_autocorr_time()
-    print(tau)
+    print('auto-corrleation times', tau)
 
+
+    #If you are adding free parameters or fitting combined samples,
+    #you will have to change these to match the input parameters 
     
-    B1m = np.mean(samples1[:,0])
-    aperm = np.mean(samples1[:,1])
-    aparm = np.mean(samples1[:,2])
+    #B1m = np.mean(samples1[:,0])
+    #aperm = np.mean(samples1[:,1])
+    #aparm = np.mean(samples1[:,2])
     #f1m = np.mean(samples1[:,3])
     #B2m = np.mean(samples1[:,3])
     #f2m = np.mean(samples1[:,5])
-    paramMC = [B1m,aperm,aparm]
+    #paramMC = [B1m,aperm,aparm]
 
+    paramMC = np.mean(samples1,axis=0)
+
+    
     chi2MC = chi2f(paramMC)
-    print(chi2MC)
     np.savetxt(outputMC+'_MC_params.txt',[*paramMC,chi2MC])
 
 

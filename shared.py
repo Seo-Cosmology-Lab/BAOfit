@@ -262,7 +262,7 @@ for i in range(0,ell.size*fac):
         cov[i*ksize:(i+1)*ksize,j*ksize:(j+1)*ksize] = covfull[i*nlines+lowerind:i*nlines+upperind,j*nlines+lowerind:j*nlines+upperind]
 
 
-print(cov.shape)
+print('covariance shape',cov.shape)
 covinv = inv(cov)
 
 
