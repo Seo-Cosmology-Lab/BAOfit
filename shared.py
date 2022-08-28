@@ -16,6 +16,9 @@ import sys
 
 from analyticBBsolver import LLSQsolver
 
+#this makes the k values that will be fed into the least squares solver.  Without convolution, they will be kobs.  
+#Otherwise, they must include matrix multiplication of the Window and Wide-angle matrices.  It assumes these are given with shape 1200x1200
+# and output a shape 5x40 with dk=0.01
 def prepare_poly_k(ell,convolved):
     if not combined:
         if convolved:
@@ -165,6 +168,8 @@ json = int(pardict["json"])
 convolved = int(pardict["convolve"])
 smooth = int(pardict["smooth"])
 
+#reads in data
+
 if json:
     r = ConvolvedFFTPower.load(inputpk)
     poles = r.poles
@@ -238,7 +243,8 @@ half = int(size/2)
 
 
 
-
+#Reads and prepares covariance matix based on fitting range.  It does assume that the input covariance matrix represents the [0,2,4] mulitipoles
+#If you only have covariance info for [0,2], I would just add a block diagonal of zeros.
 
 covfull = np.loadtxt(covpath)
 cov_start = covstart
@@ -267,8 +273,8 @@ covinv = inv(cov)
 
 
 temp = np.loadtxt(linearpk)
-#ktemp = temp[0]
-#Plintemp = temp[1]
+#These lines assume there is a template linear Pk file in column format
+#If there is not, nbodykit can generate one.  Comment out the 2 lines below, and uncomment the LinearPower line with CLASS transfer function
 ktemp = temp[:,0]
 Plintemp = temp[:,1]
 
