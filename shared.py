@@ -273,9 +273,10 @@ covinv = inv(cov)
 
 
 temp = np.loadtxt(linearpk)
-#These lines assume there is a template linear Pk file in column format
-#If there is not, nbodykit can generate one.  Comment out the 2 lines below, and uncomment the LinearPower line with CLASS transfer function
 ktemp = temp[:,0]
+#These lines assume there is a template linear Pk file in column format.
+#If there is not, nbodykit can generate one.  Comment out the line below, and uncomment the LinearPower line with CLASS transfer function.
+
 Plintemp = temp[:,1]
 
 
