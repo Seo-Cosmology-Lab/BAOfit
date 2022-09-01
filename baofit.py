@@ -204,7 +204,7 @@ if __name__ == "__main__":
 
                                                 
     if not combined and 4 in ell:
-        np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs,Pm[0:ksize],Pm[ksize:2*ksize],Pm[2*kobs.size:]]),header='NGC k \t P0 \t P2')
+        np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs,Pm[0:ksize],Pm[ksize:2*ksize],Pm[2*kobs.size:]]),header='NGC k \t P0 \t P2 \t P4')
     
     elif not combined and not 4 in ell:
         np.savetxt(outputMC+'_best_pk.txt',np.column_stack([kobs,Pm[0:ksize],Pm[ksize:]]),header='NGC k \t P0 \t P2')
