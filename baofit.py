@@ -197,7 +197,9 @@ if __name__ == "__main__":
 
 
 
-    np.savetxt(outputMC+'_bf_params.txt',[*pbf,chi2bf])
+    params_header='B,alpha_per,alpha_par,chi2'
+    np.savetxt(outputMC+'_bf_params.txt',[*pbf,chi2bf],header=params_header)
+
 
 
                                                 
